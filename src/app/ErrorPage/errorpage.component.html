@@ -1,0 +1,8 @@
+﻿<div *ngIf="errorModel !==undefined">
+    <div *ngIf="errorModel.message !==''">
+        <img class="img-responsive" src="assets/images/ErrorScreen.png"><br />
+        <h2>Uh oh!</h2><br />
+        <h4>Something went wrong, try reloading the page again.</h4><br />
+        <button type="submit" (click)="refresh()" class="btn srch-btn">Reload page</button>
+    </div>
+</div>

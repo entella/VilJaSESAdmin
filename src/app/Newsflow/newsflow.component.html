@@ -1,0 +1,226 @@
+<my-content placeholder="navigation">
+
+</my-content>
+<my-content placeholder="main">
+
+    <div *ngIf="undef ined === restItems && !displayErrorPage">Loading...</div>
+    <div class="main-content" style="z-index:0">
+        <div class="container">
+            <div class="member-page white_BG" *ngIf="undefined !== restItems && !displayErrorPage">
+                <h1 class="page-title">Newsflow</h1>
+                <div class="row newsflow-Thead">
+                    <div class="col-xs-8">
+                        <div class="Msrch-left">
+                            <div class="input-group head-sreach">
+                                <input placeholder="Search" #searchTextBox [(ngModel)]="searchText" class="form-control"
+                                    type="text" (keyup.enter)="searchNewsflow(searchTextBox.value);">
+                                <span class="input-group-btn">
+                                    <button class="btn srch-btn" type="button" (click)="searchNewsflow(searchTextBox.value);">Search</button>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-4">
+                        <button class="btn export-btn pull-right" (click)="openModal('post')" type="button">Create new</button>
+                    </div>
+                </div>
+                <div class="dboard-records">
+                    <div class="table-responsive">
+                        <table class="table records-table colps-none">
+                            <thead>
+                                <tr>
+                                    <th class="sortedT" style="min-width:40px;">
+                                        <span style="cursor:pointer;" (click)="getNewsflowByOrderBy('CreatedAt')">Created
+                                            <i *ngIf="orderByName=='CreatedAt'" [ngClass]="orderByAsc?'fa fa-caret-up':'fa fa-caret-down'"></i></span>
+                                    </th>
+                                    <th class="sortedT">
+                                        <span style="cursor:pointer;" (click)="getNewsflowByOrderBy('Description')">Description
+                                            <i *ngIf="orderByName=='Description'" [ngClass]="orderByAsc?'fa fa-caret-up':'fa fa-caret-down'"></i></span>
+                                    </th>
+                                    <th style="min-width:120px;"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let news of restItems['content']">
+                                    <td>{{news.CreatedAt | date: 'dd/MM/yyyy'}}</td>
+                                    <td>{{news.Description}}</td>
+                                    <td align="right">
+                                        <button class="btn tabledit-btn" type="button" data-dismiss="modal" data-toggle="modal"
+                                            (click)="editPost(news)">
+                                            <i class="fa fa-pencil"></i>
+                                        </button>
+                                        <button class="btn trash-btn" (click)="deletePost(news)" type="button"><i class="fa fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                                <tr *ngIf="totalMembers == 0">
+                                    <td colspan="3">No record found</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="row dataT-Ftrpagination" *ngIf="totalMembers > 0">
+                    <div class="col-xs-6">
+                        <div class="setR-limit">
+                            <div class="Rlimit-inner">
+                                <span class="record-text">Show:</span>
+                                <select #pageDD class="record-limit" (change)="setPageSize(pageDD.value)">
+                                    <option value="15">15</option>
+                                    <option value="30">30</option>
+                                    <option value="45">45</option>
+                                    <option value="60">60</option>
+                                </select>
+                                <i class="fa fa-angle-down" [ngClass]="totalMembers <= pageDD.value?'record-text':''"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-6 dataT-pagination">
+                        <ul class="pagination">
+                            <li *ngIf="DisablePrevPage()" class="page-item">
+                                <a class="page-link" href="javascript:;" aria-label="Previous" (click)="prevPage()">
+                                    <span aria-hidden="true"><i class="fa fa-angle-left"></i></span>
+                                    <span class="sr-only">Previous</span>
+                                </a>
+                            </li>
+                            <li *ngFor="let n of range()" class="page-item">
+                                <a *ngIf="n!=this.currentPage" href="javascript:;" (click)="setPage(n)" class="page-link">{{n}}</a>
+                                <span *ngIf="n==this.currentPage" class="page-link activePage">{{n}}</span>
+                            </li>
+                            <li *ngIf="DisableNextPage()" class="page-item">
+                                <a class="page-link" href="javascript:;" aria-label="Next" (click)="nextPage()">
+                                    <span aria-hidden="true"><i class="fa fa-angle-right"></i></span>
+                                    <span class="sr-only">Next</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="error-page">
+                <error-page [errorModel]="serverError"></error-page>
+            </div>
+        </div>
+    </div>
+    <!-- Edit new post Popup-->
+    <div class="modal fade in" id="create_post" tabindex="-1" role="dialog" [ngStyle]="{'display':displayPost}"
+        aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog create_post" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <h4 class="modal-title" *ngIf="editPostId == 0">Create new post</h4>
+                    <h4 class="modal-title" *ngIf="editPostId > 0">Edit post</h4>
+                    <!--<img class="img-responsive" src="assets/images/camara.png" alt="createPost">-->
+                    <div style="display:block; padding-bottom:40px; padding-top: 20px;">
+                        <input #logoFildInput name="myLogoFile" type="file" (change)="onLogoFileSelected($event)" style="display:none">
+                        <div style="float: left; margin-right: 20px;">
+                            <img id="imglogo1" *ngIf="!logoUrl" class="img-responsive logo-circle" src="{{'assets/images/image-icon.png'}}"
+                                style="cursor:pointer; padding:8px;" (click)="logoFildInput.click();">
+                            <img id="imglogo2" *ngIf="logoUrl" class="img-responsive logo-circle" src="{{logoUrl}}"
+                                style="cursor:pointer;" (click)="logoFildInput.click();">
+                        </div>
+                        <div style="vertical-align: middle; padding-top: 14px;cursor:pointer;" (click)="logoFildInput.click();">Upload
+                            Logo</div>
+                    </div>
+                    <div style="margin-bottom:20px;">
+                        <input placeholder="Title" [(ngModel)]="title" class="form-control" type="text">
+                    </div>
+
+                    <div class="prfInfo-left UPF-main">
+                        <input #fileInput name="myfile" type="file" (change)="onFileSelected($event)" style="display:none">
+                        <div class="UPF-selectImg">
+                            <img id="img1" *ngIf="!showVideo && !PictureUrl" class="img-responsive" src="{{'assets/images/image-icon.png'}}"
+                                alt="profileimg" style="cursor:pointer;" (click)="fileInput.click();">
+                            <img *ngIf="!showVideo  && PictureUrl" class="img-responsive" src="{{PictureUrl}}" alt="profileimg">
+
+                            <div style="width:370px; height:250px;" *ngIf="showVideo">
+                                <vg-player (onPlayerReady)="onPlayerReady($event)">
+                                    <vg-overlay-play></vg-overlay-play>
+                                    <vg-buffering></vg-buffering>
+
+                                    <vg-controls>
+                                        <vg-play-pause></vg-play-pause>
+                                        <vg-time-display vgProperty="current" vgFormat="mm:ss"></vg-time-display>
+
+                                        <vg-scrub-bar>
+                                            <vg-scrub-bar-buffering-time></vg-scrub-bar-buffering-time>
+                                        </vg-scrub-bar>
+                                        <vg-track-selector></vg-track-selector>
+                                        <vg-mute></vg-mute>
+                                        <vg-volume></vg-volume>
+
+                                        <vg-fullscreen></vg-fullscreen>
+                                    </vg-controls>
+
+                                    <video [autoplay]="false" [vgMedia]="media" #media id="singleVideo" preload="preload">
+                                        <source src="{{PictureUrl}}" type="{{videoType}}">
+                                    </video>
+                                </vg-player>
+                            </div>
+                            <div class="UPF-upimg" *ngIf="!PictureUrl" style="display:block;cursor:pointer;" (click)="fileInput.click();">
+                                <span>Upload new picture/video</span>
+                            </div>
+                        </div>
+                        <div class="UPF-delete" *ngIf="PictureUrl" style="display:block;">
+                            <span (click)="removeNewsImage()" *ngIf="!showVideo">Delete picture</span>
+                            <span (click)="removeNewsImage()" *ngIf="showVideo">Delete video</span>
+                            <i class="fa fa-trash" (click)="removeNewsImage()"></i>
+                        </div>
+                    </div>
+                    <form class="crtpost-from">
+                        <textarea class="form-control" (change)="doTextareaValueChange($event)" rows="5" [(ngModel)]="postMessage"
+                            name="txtarea1"></textarea>
+                        <input style="display:none;" type="text" class="form-control" [(ngModel)]="postMessage"
+                            [ngModelOptions]="{standalone: true}">
+                        <div class="doubleBTN">
+                            <button type="submit" (click)="onCloseModal()" class="btn btnB-default">Cancel</button>
+                            <button type="submit" (click)="saveUpdateNewsflowDetails()" class="btn btnB-green">Save</button>
+                        </div>
+                        <br/>
+                        <div class="alert alert-danger" *ngIf="success==false&&message!=''">
+                            {{message}}
+                        </div>
+                        <div class="alert alert-success" *ngIf="success==true&&message!=''">
+                            {{message}}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Delete image Popup-->
+    <div class="modal fade in" id="delete_popup" tabindex="-1" role="dialog" [ngStyle]="{'display':displayDelete}"
+        aria-hidden="true">
+        <div class="modal-dialog DELpopup" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <h4 class="modal-title">Delete post</h4>
+                    <p>Are you sure that you want to delete post?</p>
+                    <div class="doubleBTN">
+                        <button type="submit" (click)="onCloseModal()" class="btn simple-btn">No</button>
+                        <button type="submit" (click)="deleteNewsflow()" class="btn btnB-green">Yes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Delete profile image Popup end-->
+    <!-- Delete profile image Popup
+    <div class="modal fade in" id="deleteImage_popup" tabindex="-1" role="dialog" [ngStyle]="{'display':displayDeleteImagePopup}"
+        aria-hidden="true">
+        <div class="modal-dialog DELpopup" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <h4 class="modal-title">Delete news image</h4>
+                    <p>Are you sure that you want to delete news image?</p>
+                    <div class="doubleBTN">
+                        <button type="submit" (click)="onCloseModal()" class="btn simple-btn">Nej</button>
+                        <button type="submit" (click)="removeNewsImage()"
+                            class="btn btnB-green">Ja</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>-->
+    <!-- Delete profile image Popup end-->
+    <div class="backdrop" [ngStyle]="{'display':display}"></div>
+</my-content>

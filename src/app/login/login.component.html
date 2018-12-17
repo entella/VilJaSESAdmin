@@ -1,0 +1,68 @@
+﻿
+<my-content placeholder="navigation">
+    
+</my-content>
+<my-content placeholder="main">
+    <div class="main-content">
+        <div class="container">
+            <div class="login-form">
+                <form name="form" (ngSubmit)="loginAccount(f);" #f="ngForm">
+                    <div class="loginF-head">
+                        <h2 class="log-title">Login</h2>
+                    </div>
+                    <span *ngIf="isLoginFailed" style="color:red;">Login failed</span>
+                    <div class="form-group">
+                        <input class="form-control" style="background-color: #F9F9F9;" name="email" type="email" #emailText="ngModel" 
+                            [ngClass]="emailText.touched && !emailText.valid?'error-field':''" 
+                            placeholder="E-mail" 
+                            [(ngModel)]="email" 
+                            pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}"
+                            required>
+                    </div>
+                    <div class="form-group">
+                        <input class="form-control" style="background-color: #F9F9F9;" name="password" type="Password" placeholder="Password" [(ngModel)]="password"
+                            #passwordText="ngModel"
+                            [ngClass]="passwordText.touched && !passwordText.valid?'error-field':''" 
+                            required>
+                    </div>
+                    <div class="form-group forgetPW">
+                        <a href="javascript:;" (click)="openModal('reset')">Forgot password?</a>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-block btnB-green" [disabled]="!f.form.valid">LOGIN</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+<!-- Reset password Popup-->
+<div class="modal fade in" id="resetPW" tabindex="-1" role="dialog" [ngStyle]="{'display':displayReset}" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog resetPW" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <h4 class="modal-title">Reset password</h4>
+                    <p>Enter email so that we can send a reset-password link. </p>
+                    <form class="crtpost-from">
+                        <input type="text" class="form-control" [(ngModel)]="resetEmail"  name="revoverPW" placeholder="E-mail">
+                         <div class="alert alert-danger" *ngIf="success==false&&message!=''">
+                            {{message}}
+                         </div>
+                         <div class="alert alert-success" *ngIf="success==true&&message!=''">
+                                {{message}}
+                            </div>
+                        <div class="doubleBTN">
+                            <button type="submit" (click)="onCloseModal()" class="btn btnB-default">Cancel</button>
+                            <button type="submit" (click)="SendForgotPasswordEmail()" class="btn btnB-green">Send</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="backdrop" [ngStyle]="{'display':display}"></div>
+</my-content>
+<!--The content below is only a placeholder and can be replaced.-->
+
+
+
+

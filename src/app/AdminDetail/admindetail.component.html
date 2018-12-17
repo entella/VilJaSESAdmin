@@ -1,0 +1,173 @@
+﻿<my-content placeholder="navigation">
+
+</my-content>
+<my-content placeholder="main" >
+    <div  class="main-content">
+        <div class="container" >
+            <div class="memberInfo white_BG" *ngIf="undefined !== admindetailViewModel && !displayErrorPage">
+                <form name="form" #f="ngForm">
+                    <div class="profile-inner">
+                        <a href="javascript:void(0)" (click)="backPage()" class="back-btn">Back</a>
+                        <div class="row Mexpnd-head">
+                            <div class="col-xs-12 col-md-4">
+                                <h1 class="page-title">
+                                    Profile <span class="profile-status">(Admin)</span>
+                                </h1>
+                            </div>
+                            <div class="col-xs-12 col-md-8" *ngIf="isEdit==false">
+                                <div class="Mexpnd-left">
+                                    <button class="btn btnB-defaultBLK" type="button" data-dismiss="modal" data-toggle="modal"
+                                            (click)="openModal('del')" data-target="#deluser_popup">
+                                        Delete
+                                    </button>&nbsp;
+                                    <button class="btn btnB-defaultBLK" (click)="editProfile()" type="button">Edit</button>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-md-8" *ngIf="isEdit">
+                                <div class="Mexpnd-left">
+                                    <button class="btn btnB-defaultBLK" (click)="updateUser()" type="submit" [disabled]="!f.form.valid">Save</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="profileInfo-section" [ngClass]="(isEdit==true)?'edit-Pinfo':''">
+                            <h3 class="boxtitle">Information</h3>
+                            <div class="prfInfo-inner">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-7 prfInfo-right">
+                                        <div *ngIf="message" class="row" style="color:red">
+                                            <div class="col-xs-12">{{message}}</div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-xs-6">
+                                                <h6>First name</h6>
+                                                <p class="savedD">{{admindetailViewModel.FirstName}}</p>
+                                                <input class="form-control editPData" [(ngModel)]="admindetailViewModel.FirstName"
+                                                       type="text" *ngIf="isEdit" #firstNameText="ngModel" name="firstName"
+                                                       [ngClass]="firstNameText.touched && !firstNameText.valid?'editPData-error':''"
+                                                       maxlength="250"
+                                                       required>
+                                            </div>
+                                            <div class="col-xs-6">
+                                                <h6>Last name</h6>
+                                                <p class="savedD">{{admindetailViewModel.LastName}}</p>
+                                                <input class="form-control editPData" [(ngModel)]="admindetailViewModel.LastName"
+                                                       type="text" *ngIf="isEdit" #lastNameText="ngModel" name="lastName"
+                                                       [ngClass]="lastNameText.touched && !lastNameText.valid?'editPData-error':''"
+                                                       maxlength="250"
+                                                       required>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-xs-6">
+                                                <h6>Location</h6>
+                                                <p class="savedD">{{admindetailViewModel.CityName}}</p>
+                                                <!--<input class="form-control editPData" type="text">-->
+                                                <select [(ngModel)]='admindetailViewModel.CityId' class="form-control editPData"
+                                                        *ngIf="isEdit" name="city">
+                                                    <option value="0">--Select City--</option>
+                                                    <option *ngFor="let city of citiesItem" value={{city.CityId}}>
+                                                        {{city.CityName}}
+                                                    </option>
+                                                </select>
+
+                                            </div>
+                                            <div class="col-xs-6">
+                                                <h6>Age</h6>
+                                                <p class="savedD">{{admindetailViewModel.Age}}</p>
+                                                <!--<input class="form-control editPData" name="Fname" type="text">-->
+                                                <select [(ngModel)]='admindetailViewModel.Age' class="form-control editPData"
+                                                        *ngIf="isEdit" name="age">
+                                                    <option value="0">--Select Age--</option>
+                                                    <option *ngFor="let age of ageList" value={{age}}>
+                                                        {{age}}
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-xs-6">
+                                                <h6>Email</h6>
+                                                <!--<p class="savedD">{{admindetailViewModel.Email}}</p>-->
+                                                <p *ngIf="admindetailViewModel.UserId!=0">{{admindetailViewModel.Email}}</p>
+                                                <input *ngIf="admindetailViewModel.UserId==0" class="form-control editPData"
+                                                       [(ngModel)]="admindetailViewModel.Email" type="email" name="email" #emailText="ngModel"
+                                                       email pattern="[a-zA-Z0-9.-_]{1,}@[a-zA-Z.-]{2,}[.]{1}[a-zA-Z]{2,}"
+                                                       [ngClass]="emailText.touched && !emailText.valid?'editPData-error':''"
+                                                       maxlength="250"
+                                                       required>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+
+                <div class="profile-inner" *ngIf="userId !== 0">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <h3 class="boxtitle">Set password</h3>
+                            <div class="prfInfo-inner">
+                                <form class="crtpost-from" #f1="ngForm">
+                                    <input type="password" class="form-control" maxlength="20" [(ngModel)]="password" name="revoverPW" #PWText="ngModel"
+                                     [ngClass]="PWText.touched && !PWText.valid?'editPData-error':''"  placeholder="Password" required><br/>
+                                    <input type="password" class="form-control" maxlength="20" [(ngModel)]="repassword" name="revoverConfPW" #ConfPWText="ngModel"
+                                     [ngClass]="ConfPWText.touched && !ConfPWText.valid?'editPData-error':''" placeholder="Re-enter password" required><br />
+                                    <button type="submit" (click)="ChangePassword(f1)" class="btn srch-btn" [disabled]="!f1.form.valid">Save</button><br />
+                                    <div class="alert alert-danger" *ngIf="modalErrorBool==true">
+                                        {{modalError}}
+                                    </div>
+                                </form>
+                                <div>
+                                    <h4>{{resetMessage}}</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="error-page">
+                <error-page [errorModel]="serverError"></error-page>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Save faq Popup-->
+    <div class="modal fade in" id="faqAdded_popup" tabindex="-1" role="dialog" [ngStyle]="{'display':display}" aria-hidden="true">
+        <div class="modal-dialog DELpopup" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <h4 class="modal-title">Saved successfully</h4>
+                    <p>The changes you have made has been saved.</p>
+                    <div class="continue-popup">
+                        <button type="submit" (click)="onCloseModal()" class="btn btnB-green">Continue</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div><!-- Save faq Popup end-->
+
+    <!-- Delete user Popup-->
+    <div class="modal fade in" id="deluser_popup" tabindex="-1" role="dialog" [ngStyle]="{'display':displaydel}"
+        aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog DELpopup" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <h4 class="modal-title">Delete user</h4>
+                    <p>Are you sure that you want to delete this user?</p>
+                    <div class="doubleBTN">
+                        <button type="submit" (click)="onCloseModal()" class="btn simple-btn">No</button>
+                        <button type="submit" (click)="deleteUser()" class="btn btnB-green">Yes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div><!-- Delete user Popup end-->
+
+    <div class="backdrop" [ngStyle]="{'display':display}"></div>
+    <div class="backdrop" [ngStyle]="{'display':displaydel}"></div>
+</my-content>

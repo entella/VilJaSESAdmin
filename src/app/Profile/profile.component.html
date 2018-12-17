@@ -1,0 +1,307 @@
+<my-content placeholder="navigation">
+
+</my-content>
+<my-content placeholder="main" >
+    <div class="main-content">
+        <div class="container">
+            <div class="memberInfo white_BG" *ngIf="undefined !== userProfileViewModel && !displayErrorPage">
+                <form name="form" #f="ngForm">
+                    <div class="profile-inner">
+                        <a href="javascript:void(0)" (click)="backPage()" class="back-btn">Back</a>
+                        <div class="row Mexpnd-head">
+                            <div class="col-xs-12 col-md-4">
+                                <h1 class="page-title">Profile <span class="profile-status">{{userProfileViewModel.IsProfilePaused==true?'(Inactive)':'(Active)'}}</span></h1>
+                            </div>
+                            <div class="col-xs-12 col-md-8" *ngIf="isEdit==false">
+                                <div class="Mexpnd-left">
+                                    <button class="btn simple-btn" type="button" data-dismiss="modal" data-toggle="modal" (click)="openModal('del')" data-target="#deluser_popup">Delete</button>
+                                    <button class="btn btnB-defaultBLK" (click)="editProfile()" type="button">Edit</button>
+                                    <button class="btn export-btn PRFbtn3" *ngIf="!userProfileViewModel.IsBlocked" type="button" data-dismiss="modal" data-toggle="modal" (click)="openModal('blocked')" data-target="#blockuser_popup">Block</button>
+                                    <button class="btn export-btn PRFbtn3" *ngIf="userProfileViewModel.IsBlocked" type="button" (click)="openModal('unblocked')">Blocked</button>
+                                    <button class="btn export-btn" type="button" (click)="exportProfile();">Export</button>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-md-8" *ngIf="isEdit">
+                                <div class="Mexpnd-left">
+                                    <button [disabled]="!f.form.valid" type="submit" class="btn btnB-defaultBLK" (click)="updateUserProfile();">Save</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="profileInfo-section" [ngClass]="(isEdit==true)?'edit-Pinfo':''">
+                            <h3 class="boxtitle">Information</h3>
+                            <div class="prfInfo-inner">
+                                <div class="row">
+                                    <div class="col-xs-12 col-sm-5">
+                                        <div class="prfInfo-left UPF-main">
+                                            <input #fileInput name="myfile" type="file" (change)="onFileSelected($event)" style="display:none">
+                                            <div class="UPF-selectImg">
+                                                <img *ngIf="!userProfileViewModel.PictureUrl && isEdit" class="img-responsive" src="{{'assets/images/image-icon.png'}}" 
+                                                    style="cursor:pointer;" (click)="fileInput.click();">
+
+                                                <img *ngIf="(userProfileViewModel.PictureUrl || !isEdit)" 
+                                                    class="img-responsive" src="{{!userProfileViewModel.PictureUrl?'assets/images/image-icon.png':userProfileViewModel.PictureUrl}}">
+
+                                                <div class="UPF-upimg" *ngIf="!userProfileViewModel.PictureUrl" style="cursor:pointer;" (click)="fileInput.click();">
+                                                    <span>Upload new picture</span>
+                                                </div>
+                                            </div>
+                                            <div class="UPF-delete" *ngIf="userProfileViewModel.PictureUrl">
+                                                <span (click)="openModal('deleteProfileImage_popup')">Delete picture</span>
+                                                <i class="fa fa-trash" (click)="openModal('deleteProfileImage_popup', 1)"></i>
+                                            </div>
+                                        </div>
+                                        <div class="prfInfo-left UPF-main" *ngIf="showVideo">
+                                            <div class="UPF-selectImg">
+                                                <div style="width:370px; height:250px;" *ngIf="showVideo">
+                                                    <vg-player (onPlayerReady)="onPlayerReady($event)">
+                                                        <vg-overlay-play></vg-overlay-play>
+                                                        <vg-buffering></vg-buffering>
+                    
+                                                        <vg-controls>
+                                                            <vg-play-pause></vg-play-pause>
+                                                            <vg-time-display vgProperty="current" vgFormat="mm:ss"></vg-time-display>
+                    
+                                                            <vg-scrub-bar>
+                                                                <vg-scrub-bar-buffering-time></vg-scrub-bar-buffering-time>
+                                                            </vg-scrub-bar>
+                                                            <vg-track-selector></vg-track-selector>
+                                                            <vg-mute></vg-mute>
+                                                            <vg-volume></vg-volume>
+                    
+                                                            <vg-fullscreen></vg-fullscreen>
+                                                        </vg-controls>
+                    
+                                                        <video [autoplay]="false" [vgMedia]="media" #media id="singleVideo" preload="preload">
+                                                            <source src="{{userProfileViewModel.VideoUrl}}" type="video/mp4">
+                                                        </video>
+                                                    </vg-player>
+                                                </div>
+
+                                                <div class="UPF-upimg" style="cursor:pointer;" (click)="fileInput.click();">
+                                                    <span>Upload new picture</span>
+                                                </div>
+                                            </div>
+                                            <div class="UPF-delete">
+                                                <span (click)="openModal('deleteProfileVideo_popup', 2)">Delete video</span>
+                                                <i class="fa fa-trash" (click)="openModal('deleteProfileVideo_popup', 2)"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-12 col-sm-7 prfInfo-right">
+                                        <div class="row">
+                                            <div class="col-xs-6">
+                                                <h6>First name</h6>
+                                                <p class="savedD">{{userProfileViewModel.FirstName}}</p>
+                                                <input class="form-control editPData" *ngIf="isEdit" [(ngModel)]="userProfileViewModel.FirstName"
+                                                       type="text" name="firstName"
+                                                       #firstNameText="ngModel"
+                                                       [ngClass]="firstNameText.touched && !firstNameText.valid?'editPData-error':''"
+                                                       maxlength="250"
+                                                       required>
+                                            </div>
+                                            <div class="col-xs-6">
+                                                <h6>Last name</h6>
+                                                <p class="savedD">{{userProfileViewModel.LastName}}</p>
+                                                <input class="form-control editPData" *ngIf="isEdit" [(ngModel)]="userProfileViewModel.LastName" type="text"
+                                                       name="lastName" #lastNameText="ngModel"
+                                                       [ngClass]="lastNameText.touched && !lastNameText.valid?'editPData-error':''"
+                                                       maxlength="250"
+                                                       required>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-xs-6">
+                                                <h6>Location</h6>
+                                                <p class="savedD">{{userProfileViewModel.CityName}}</p>
+                                                <!--<input class="form-control editPData" type="text">-->
+                                                <select *ngIf="isEdit" [(ngModel)]='userProfileViewModel.CityId' class="form-control editPData" name="city">
+                                                    <option value="0">--Select City--</option>
+                                                    <option *ngFor="let city of citiesItem" value={{city.CityId}}>
+                                                        {{city.CityName}}
+                                                    </option>
+                                                </select>
+
+                                            </div>
+                                            <div class="col-xs-6">
+                                                <h6>Age</h6>
+                                                <p class="savedD">{{userProfileViewModel.Age}}</p>
+                                                <!--<input class="form-control editPData" name="Fname" type="text">-->
+                                                <select *ngIf="isEdit" [(ngModel)]='userProfileViewModel.Age' class="form-control editPData" name="age">
+                                                    <option value="0">--Select Age--</option>
+                                                    <option *ngFor="let age of ageList" value={{age}}>
+                                                        {{age}}
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-xs-12">
+                                                <h6>About me</h6>
+                                                <p class="savedD">{{userProfileViewModel.AboutMe}}</p>
+                                                <textarea class="form-control editPData" style="height: auto !important" *ngIf="isEdit" (change)="doTextareaValueChange($event)" rows="10" [(ngModel)]="userProfileViewModel.AboutMe"
+                                                name="AboutMe" maxlength="499"></textarea>
+                                                <!--<input class="form-control editPData" *ngIf="isEdit" [(ngModel)]="userProfileViewModel.AboutMe" type="text"
+                                                       name="AboutMe" #aboutMe="ngModel"
+                                                       [ngClass]="aboutMe.touched && !aboutMe.valid?'editPData-error':''"
+                                                       maxlength="500"
+                                                       required>-->
+                                            </div>
+                                        </div>
+                                        <!--<button class="btn btn-greenxs" (click)="updateUserProfile()" type="button">Save</button>-->
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <!--<div class="table-responsive" *ngIf="messageReportedtoAdmin.length<=0">
+                No reports record found.
+            </div>-->
+                        <div class="table-responsive">
+                            <table class="table records-table colps-table">
+                                <colgroup>
+                                    <col width="17%" span="1">
+                                    <col width="35%" span="1">
+                                </colgroup>
+                                <thead>
+                                    <tr>
+                                        <th>Reports</th>
+                                        <th>Date</th>
+                                        <!--<th>Regarding</th>-->
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <ng-container *ngFor="let msg of tempReportedMessage">
+                                        <tr class="collapse-mthdata">
+                                            <td>{{msg.ReportedName}}</td>
+                                            <td>{{msg.CreatedAt | date: 'dd/MM/yyyy'}}</td>
+                                            <!--<td>{{msg.Message}}</td>-->
+                                            <td class="admin-action">
+                                                <!--<button class="btn tabledit-btn open-markRPT" type="button"><i class="fa fa-angle-down"></i></button>-->
+                                                <button class="btn tabledit-btn open-markRPT" type="button" (click)="expandMe(msg)"><i [ngClass]="(msg.Checked==true)?'fa fa-angle-up':'fa fa-angle-down'"></i></button>
+                                            </td>
+                                        </tr>
+                                        <tr [hidden]="!msg.Checked">
+                                            <!--<td></td>-->
+                                            <td colspan="3">
+                                                <form class="markRPT-from">
+                                                    <!--<label class="Submitted-rpt" for="">Submitted by {{msg.ReplyedBy}}</label>-->
+                                                    <textarea readonly class="form-control" (change)="doTextareaValueChange($event,msg)" rows="5">{{msg.Message}}</textarea>
+                                                    <div class="RPT-mark">
+                                                        <div class="terms-check">
+                                                            <input id="rptmark_{{msg.ReportAdminId}}" class="styled-checkbox" (change)="updateReportedMessageByAdmin(msg)" name="rptmark_{{msg.ReportAdminId}}" [(ngModel)]="msg.IsCompleted" type="checkbox">
+                                                            <label class="checkbox-label" for="rptmark_{{msg.ReportAdminId}}"><span class="view-conditions">Mark report as completed</span></label>
+
+                                                        </div>
+                                                        <!--<button class="btn btn-greenxs" (click)="updateReportedMessageByAdmin(msg)" type="button">Save</button>-->
+                                                    </div>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    </ng-container>
+                                    <tr *ngIf="messageReportedtoAdmin.length == 0">
+                                        <td colspan="3">No record found</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="Tmore-data"><a href="javascript:void(0);" (click)="loadMore();" *ngIf="!hideLoadMoreButton">Load more</a></div>
+                    </div>
+                </form>
+            </div>
+            <div class="error-page">
+                <error-page [errorModel]="serverError"></error-page>
+            </div>
+        </div>
+    </div>
+    <!-- Delete user Popup-->
+    <div class="modal fade in" id="deluser_popup" tabindex="-1" role="dialog" [ngStyle]="{'display':displaydel}" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" *ngIf="undefined !== userProfileViewModel && !displayErrorPage">
+        <div class="modal-dialog DELpopup" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <h4 class="modal-title">Delete user</h4>
+                    <p>Are you sure that you want to delete user {{userProfileViewModel.FirstName}}?</p>
+                    <div class="doubleBTN">
+                        <button type="submit" (click)="onCloseModal()" class="btn simple-btn">No</button>
+                        <button type="submit" (click)="deleteUserProfile()" class="btn btnB-green">Yes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div><!-- Delete user Popup end-->
+    <!-- Block user Popup-->
+    <div class="modal fade in" id="blockuser_popup" tabindex="-1" role="dialog" [ngStyle]="{'display':displayblocked}" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" *ngIf="undefined !== userProfileViewModel && !displayErrorPage">
+        <div class="modal-dialog DELpopup" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <h4 class="modal-title">Block user</h4>
+                    <p>Are you sure that you want to block user {{userProfileViewModel.FirstName}}?</p>
+                    <div class="doubleBTN">
+                        <button type="submit" (click)="onCloseModal()" class="btn simple-btn">No</button>
+                        <button type="submit" (click)="blockUserProfile()" class="btn btnB-green">Yes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div><!-- Block user Popup end-->
+    <!-- Block user Popup-->
+    <div class="modal fade in" id="unblockuser_popup" tabindex="-1" role="dialog" [ngStyle]="{'display':displayunblocked}" aria-hidden="true" *ngIf="undefined !== userProfileViewModel && !displayErrorPage">
+        <div class="modal-dialog DELpopup" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <h4 class="modal-title">Unblock user</h4>
+                    <p>Are you sure that you want to unblock user {{userProfileViewModel.FirstName}}?</p>
+                    <div class="doubleBTN">
+                        <button type="submit" (click)="onCloseModal()" class="btn simple-btn">No</button>
+                        <button type="submit" (click)="unblockUserProfile()" class="btn btnB-green">Yes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div><!-- Block user Popup end-->
+    <!-- Delete profile image Popup-->
+    <div class="modal fade in" id="deleteProfileImage_popup" tabindex="-1" role="dialog" [ngStyle]="{'display':displayDeleteImagePopup}" aria-hidden="true" *ngIf="undefined !== userProfileViewModel && !displayErrorPage">
+        <div class="modal-dialog DELpopup" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <h4 class="modal-title">Delete profile image</h4>
+                    <p>Are you sure that you want to delete profile image?</p>
+                    <div class="doubleBTN">
+                        <button type="submit" (click)="onCloseModal()" class="btn simple-btn">No</button>
+                        <button type="submit" (click)="removeUserProfileImage(userProfileViewModel.UserProfileId, 1);" class="btn btnB-green">Yes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div><!-- Delete profile image Popup end-->
+    <!-- Delete profile image Popup-->
+    <div class="modal fade in" id="deleteProfileVideo_popup" tabindex="-1" role="dialog" [ngStyle]="{'display':displayDeleteVideoPopup}" aria-hidden="true" *ngIf="undefined !== userProfileViewModel && !displayErrorPage">
+        <div class="modal-dialog DELpopup" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <h4 class="modal-title">Delete profile video</h4>
+                    <p>Are you sure that you want to delete profile video?</p>
+                    <div class="doubleBTN">
+                        <button type="submit" (click)="onCloseModal()" class="btn simple-btn">No</button>
+                        <button type="submit" (click)="removeUserProfileImage(userProfileViewModel.UserProfileId, 2);" class="btn btnB-green">Yes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div><!-- Delete profile image Popup end-->
+     <!-- Save profile Popup-->
+     <div class="modal fade in" id="profileUpdated_popup" tabindex="-1" role="dialog" [ngStyle]="{'display':displayProfileUpdatedPopup}" aria-hidden="true" *ngIf="undefined !== userProfileViewModel && !displayErrorPage">
+        <div class="modal-dialog DELpopup" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <h4 class="modal-title">Profile updated</h4>
+                    <p>The changes you have made has been saved.</p>
+                    <div class="continue-popup">
+                        <button type="submit" (click)="onCloseModal()" class="btn btnB-green">Continue</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div><!-- Save profile Popup end-->
+    <div class="backdrop" [ngStyle]="{'display':display}"></div>
+</my-content>
